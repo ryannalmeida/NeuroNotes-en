@@ -30,6 +30,44 @@ jobs:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL || '' }}
           VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY || '' }}
 
+      - name: Verify build output
+        run: |
+          echo "=== Build Verification ==="
+          echo "Checking dist directory:"
+          ls -la dist/ || (echo "ERROR: dist directory not found!" && exit 1)
+          echo ""
+          echo "Checking for index.html:"
+          test -f dist/index.html && echo "✓ index.html exists" || (echo "✗ ERROR: index.html NOT FOUND" && exit 1)
+          echo ""
+          echo "Checking index.html content (first 30 lines):"
+          head -30 dist/index.html
+          echo ""
+          echo "Checking for assets directory:"
+          if [ -d dist/assets ]; then
+            echo "✓ assets directory exists"
+            ls -la dist/assets/ | head -10
+          else
+            echo "⚠ Warning: No assets directory found"
+          fi
+          echo ""
+          echo "Checking for 404.html:"
+          if [ -f dist/404.html ]; then
+            echo "✓ 404.html exists in dist"
+          elif [ -f public/404.html ]; then
+            echo "⚠ 404.html exists in public but not in dist (will be copied)"
+            cp public/404.html dist/404.html
+            echo "✓ 404.html copied to dist"
+          else
+            echo "⚠ Warning: 404.html not found"
+          fi
+
+      - name: Copy 404.html to dist
+        run: |
+          if [ -f public/404.html ] && [ ! -f dist/404.html ]; then
+            cp public/404.html dist/404.html
+            echo "✓ 404.html copied to dist"
+          fi
+
       - name: Deploy to gh-pages
         uses: peaceiris/actions-gh-pages@v3
         if: github.ref == 'refs/heads/main'
