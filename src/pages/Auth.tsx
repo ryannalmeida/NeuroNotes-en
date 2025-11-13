@@ -65,11 +65,16 @@ const Auth = () => {
     const password = formData.get("password") as string;
     const name = formData.get("name") as string;
 
+    // Get base path for GitHub Pages compatibility
+    // This matches the basename in App.tsx and base in vite.config.ts
+    const basePath = '/NeuroNotes-en';
+    const redirectPath = `${basePath}/dashboard`;
+    
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: `${window.location.origin}/dashboard`,
+        emailRedirectTo: `${window.location.origin}${redirectPath}`,
         data: {
           display_name: name,
         },
