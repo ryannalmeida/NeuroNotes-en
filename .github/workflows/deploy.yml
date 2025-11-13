@@ -68,6 +68,11 @@ jobs:
             echo "✓ 404.html copied to dist"
           fi
 
+      - name: Disable Jekyll processing
+        run: |
+          touch dist/.nojekyll
+          echo "✓ Created .nojekyll file to disable Jekyll processing"
+
       - name: Deploy to gh-pages
         uses: peaceiris/actions-gh-pages@v3
         if: github.ref == 'refs/heads/main'
